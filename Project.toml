@@ -1,0 +1,4 @@
+name = "AdventOfCode2024"
+uuid = "44959b57-06b5-47c3-a087-44c4e170843e"
+authors = ["Will Haese-Hill <wahhill@gmail.com>"]
+version = "0.1.0"
