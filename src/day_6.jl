@@ -100,16 +100,16 @@ function run()
         try
             i, j = I, J
             if directions[diridx % 4 + 1] == 'N'
-                i = i - 1
+                i -= 1
             elseif directions[diridx % 4 + 1] == 'E'
-                j = j + 1
+                j += 1
             elseif directions[diridx % 4 + 1] == 'S'
-                i = i + 1
+                i += 1
             else
-                j = j - 1
+                j -= 1
             end
             if data[i, j] == '#'
-                diridx = diridx + 1
+                diridx += 1
             else
                 I, J = i, j
                 data[I, J] = 'X'
