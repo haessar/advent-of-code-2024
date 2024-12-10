@@ -47,7 +47,7 @@ Continuing the first example, the first few blocks' position multiplied by its f
 Compact the amphipod's hard drive using the process he requested. What is the resulting filesystem checksum? (Be careful copy/pasting the input for this puzzle; it is a single, very long line.)
 =#
 
-function run(line)
+function run1(line)
     blocks = []
     id = 0
     for (idx, char) in enumerate(line)
@@ -86,7 +86,77 @@ function run(line)
 end
 
 # Test
-run("2333133121414131402")
-run("12345")
+run1("2333133121414131402")
+run1("12345")
 
-run(readline("input/day_9.txt"))
+run1(readline("input/day_9.txt"))
+
+#=
+--- Part Two ---
+Upon completion, two things immediately become clear. First, the disk definitely has a lot more contiguous free space, just like the amphipod hoped. Second, the computer is running much more slowly! Maybe introducing all of that file system fragmentation was a bad idea?
+
+The eager amphipod already has a new plan: rather than move individual blocks, he'd like to try compacting the files on his disk by moving whole files instead.
+
+This time, attempt to move whole files to the leftmost span of free space blocks that could fit the file. Attempt to move each file exactly once in order of decreasing file ID number starting with the file with the highest file ID number. If there is no span of free space to the left of a file that is large enough to fit the file, the file does not move.
+
+The first example from above now proceeds differently:
+
+00...111...2...333.44.5555.6666.777.888899
+0099.111...2...333.44.5555.6666.777.8888..
+0099.1117772...333.44.5555.6666.....8888..
+0099.111777244.333....5555.6666.....8888..
+00992111777.44.333....5555.6666.....8888..
+The process of updating the filesystem checksum is the same; now, this example's checksum would be 2858.
+
+Start over, now compacting the amphipod's hard drive using this new method instead. What is the resulting filesystem checksum?
+=#
+import Pkg; Pkg.add("StatsBase")
+using StatsBase
+
+function run2(line)
+    files = []
+    id = 0
+    for (idx, char) in enumerate(line)
+        if idx % 2 == 0
+            push!(files, repeat(["."], parse(Int64, char)))
+        else
+            push!(files, repeat([string(id)], parse(Int64, char)))
+            id += 1
+        end
+    end
+
+    for idx in length(files):-1:1
+        file = files[idx]
+        moved = false
+        if "." ∉ file
+            for gap_idx in findall(x->x==1, "." .∈ files)
+                if gap_idx > idx
+                    break
+                end
+                if countmap(files[gap_idx])["."] >= length(file)
+                    internal_gap_idx = findfirst(x->x==".", files[gap_idx])
+                    files[gap_idx][internal_gap_idx:(internal_gap_idx + length(file) - 1)] = file
+                    moved = true
+                    break
+                end
+            end
+            if moved
+                files[idx] = repeat(["."], length(file))
+            end
+        end
+    end
+
+    checksum = 0
+    flattened_files = [(files...)...]
+    for (idx, block) in enumerate(flattened_files)
+        if block != "."
+            checksum += (idx-1) * parse(Int64, block)
+        end
+    end
+    println(checksum)
+end
+
+# Test
+run2("2333133121414131402")
+
+run2(readline("input/day_9.txt"))

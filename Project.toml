@@ -8,9 +8,11 @@ Combinatorics = "861a8166-3701-5b0c-9a16-15d98fcdc6aa"
 Counters = "5a653867-b65e-5b16-a095-b1e26d522bbf"
 DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
 ProgressBars = "49802e3a-d2f1-5c88-81d8-b72133a6f568"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
 [compat]
 Combinatorics = "1.0.2"
 Counters = "0.3.4"
 DataStructures = "0.18.20"
 ProgressBars = "1.5.1"
+StatsBase = "0.34.3"
