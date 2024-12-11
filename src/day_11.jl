@@ -70,7 +70,7 @@ function blink(line, number=1, terminator=25)
     if number == terminator
         return length(new_line)
     else
-        return blink(join(new_line, " "), number+1)
+        return blink(join(new_line, " "), number+1, terminator)
     end
 end
 
