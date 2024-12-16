@@ -65,7 +65,7 @@ global test_data = [
     "Prize: X=18641, Y=10279"
 ]
 
-P(v, S) = sum(parse.(Int, v) .* S)
+P(v, S) = sum(v .* S)
 
 function run1(lines)
     tokens = 0
@@ -74,22 +74,22 @@ function run1(lines)
     global a_x, a_y, b_x, b_y, p_x, p_y, solution
     for line in lines
         if startswith(line, "Button A")
-            a_x, a_y = match(pat_but, line)
+            a_x, a_y = parse.(Int, match(pat_but, line))
         elseif startswith(line, "Button B")
-            b_x, b_y = match(pat_but, line)
+            b_x, b_y = parse.(Int, match(pat_but, line))
         elseif startswith(line, "Prize")
-            p_x, p_y = match(pat_pri, line)
+            p_x, p_y = parse.(Int, match(pat_pri, line))
         else
             M = [a_x b_x; a_y b_y]
             p = [p_x, p_y]
             try
-                solution = Int.(round.(parse.(Int, M)\parse.(Int, p), sigdigits=4))
+                solution = Int.(round.(M\p, sigdigits=4))
             catch ex
                 if !isa(ex, InexactError)
                     throw(ex)
                 end
             else
-                if P(M[1,:], solution) == parse(Int, p[1]) && P(M[2,:], solution) == parse(Int, p[2])
+                if P(M[1,:], solution) == p[1] && P(M[2,:], solution) == p[2]
                     if any(x->x>100, solution)
                         println(solution)
                     end
@@ -104,3 +104,64 @@ end
 run1(test_data)
 # I had to add another dummy line at the end of the input to trigger the final iteration
 run1(readlines("input/day_13.txt"))
+
+#=
+--- Part Two ---
+As you go to win the first prize, you discover that the claw is nowhere near where you expected it would be. Due to a unit conversion error in your measurements, the position of every prize is actually 10000000000000 higher on both the X and Y axis!
+
+Add 10000000000000 to the X and Y position of every prize. After making this change, the example above would now look like this:
+
+Button A: X+94, Y+34
+Button B: X+22, Y+67
+Prize: X=10000000008400, Y=10000000005400
+
+Button A: X+26, Y+66
+Button B: X+67, Y+21
+Prize: X=10000000012748, Y=10000000012176
+
+Button A: X+17, Y+86
+Button B: X+84, Y+37
+Prize: X=10000000007870, Y=10000000006450
+
+Button A: X+69, Y+23
+Button B: X+27, Y+71
+Prize: X=10000000018641, Y=10000000010279
+Now, it is only possible to win a prize on the second and fourth claw machines. Unfortunately, it will take many more than 100 presses to do so.
+
+Using the corrected prize coordinates, figure out how to win as many prizes as possible. What is the fewest tokens you would have to spend to win all possible prizes?
+=#
+
+function run2(lines)
+    tokens = 0
+    pat_but = r"Button\s[AB]\:\sX\+(\d+)\,\sY\+(\d+)"
+    pat_pri = r"Prize\:\sX\=(\d+)\,\sY\=(\d+)"
+    global a_x, a_y, b_x, b_y, p_x, p_y, solution
+    for line in lines
+        if startswith(line, "Button A")
+            a_x, a_y = parse.(Int, match(pat_but, line))
+        elseif startswith(line, "Button B")
+            b_x, b_y = parse.(Int, match(pat_but, line))
+        elseif startswith(line, "Prize")
+            p_x, p_y = parse.(Int, match(pat_pri, line))
+            p_x += 10000000000000
+            p_y += 10000000000000
+        else
+            M = [a_x b_x; a_y b_y]
+            p = [p_x, p_y]
+            try
+                solution = Int.(round.(M\p))
+            catch ex
+                if !isa(ex, InexactError)
+                    throw(ex)
+                end
+            else
+                if P(M[1,:], solution) == p[1] && P(M[2,:], solution) == p[2]
+                    tokens += sum(map(*, solution, [3,1]))
+                end
+            end
+        end
+    end
+    println(tokens)
+end
+
+run2(readlines("input/day_13.txt"))
